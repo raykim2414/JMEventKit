@@ -7,6 +7,7 @@
 
 import SwiftUI
 import JMEventKit
+import EventKit
 
 struct HomeView: View {
     @StateObject private var eventKit = JMEventKit.shared

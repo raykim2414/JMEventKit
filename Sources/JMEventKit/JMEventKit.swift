@@ -272,7 +272,7 @@ public final class JMEventKit: ObservableObject {
         defer { isFetching = false }
 
         // Create predicate for incomplete reminders (already on MainActor)
-        let predicate = eventStore.predicateForIncompleteReminders(
+        let predicate = (eventStore as! EKEventStore).predicateForIncompleteReminders(
             withDueDateStarting: nil,
             ending: nil,
             calendars: nil
@@ -321,7 +321,7 @@ public final class JMEventKit: ObservableObject {
         defer { isFetching = false }
 
         // Create predicate for completed reminders (already on MainActor)
-        let predicate = eventStore.predicateForCompletedReminders(
+        let predicate = (eventStore as! EKEventStore).predicateForCompletedReminders(
             withCompletionDateStarting: startDate,
             ending: endDate,
             calendars: nil
@@ -356,7 +356,7 @@ public final class JMEventKit: ObservableObject {
         defer { isFetching = false }
 
         // Create predicate for incomplete reminders
-        let predicate = eventStore.predicateForIncompleteReminders(
+        let predicate = (eventStore as! EKEventStore).predicateForIncompleteReminders(
             withDueDateStarting: startDate,
             ending: endDate,
             calendars: calendars
@@ -395,7 +395,7 @@ public final class JMEventKit: ObservableObject {
         defer { isFetching = false }
 
         // Fetch incomplete reminders
-        let incompletePredicate = eventStore.predicateForIncompleteReminders(
+        let incompletePredicate = (eventStore as! EKEventStore).predicateForIncompleteReminders(
             withDueDateStarting: nil,
             ending: nil,
             calendars: nil
@@ -406,7 +406,7 @@ public final class JMEventKit: ObservableObject {
 
             // Include completed reminders if requested
             if includeCompleted {
-                let completedPredicate = eventStore.predicateForCompletedReminders(
+                let completedPredicate = (eventStore as! EKEventStore).predicateForCompletedReminders(
                     withCompletionDateStarting: nil,
                     ending: nil,
                     calendars: nil
@@ -820,53 +820,5 @@ public final class JMEventKit: ObservableObject {
     /// - Returns: The default `EKCalendar` or `nil` if not found
     public func defaultEventCalendar() -> EKCalendar? {
         return eventStore.defaultCalendarForNewEvents()
-    }
-}
-
-// MARK: - EKEventStore Extension for Predicates
-
-private extension EventStoreProtocol where Self == EKEventStore {
-    func predicateForIncompleteReminders(
-        withDueDateStarting startDate: Date?,
-        ending endDate: Date?,
-        calendars: [EKCalendar]?
-    ) -> NSPredicate {
-        return (self as! EKEventStore).predicateForIncompleteReminders(
-            withDueDateStarting: startDate,
-            ending: endDate,
-            calendars: calendars
-        )
-    }
-
-    func predicateForCompletedReminders(
-        withCompletionDateStarting startDate: Date?,
-        ending endDate: Date?,
-        calendars: [EKCalendar]?
-    ) -> NSPredicate {
-        return (self as! EKEventStore).predicateForCompletedReminders(
-            withCompletionDateStarting: startDate,
-            ending: endDate,
-            calendars: calendars
-        )
-    }
-}
-
-private extension EventStoreProtocol {
-    func predicateForIncompleteReminders(
-        withDueDateStarting startDate: Date?,
-        ending endDate: Date?,
-        calendars: [EKCalendar]?
-    ) -> NSPredicate {
-        // This is a workaround for testing - real implementation uses EKEventStore method
-        return NSPredicate(value: true)
-    }
-
-    func predicateForCompletedReminders(
-        withCompletionDateStarting startDate: Date?,
-        ending endDate: Date?,
-        calendars: [EKCalendar]?
-    ) -> NSPredicate {
-        // This is a workaround for testing - real implementation uses EKEventStore method
-        return NSPredicate(value: true)
     }
 }
