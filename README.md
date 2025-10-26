@@ -206,6 +206,116 @@ if let calendar = JMEventKit.shared.defaultCalendar() {
 }
 ```
 
+### Create Recurring Reminder
+
+```swift
+let reminder = try await JMEventKit.shared.createRecurringReminder(
+    title: "Take vitamins",
+    startDate: Date(),
+    frequency: .daily,
+    interval: 1,
+    endDate: Date().addingTimeInterval(30 * 24 * 60 * 60) // 30 days
+)
+```
+
+### Create Reminder with Alarms
+
+```swift
+let alarm1 = EKAlarm(relativeOffset: -3600) // 1 hour before
+let alarm2 = EKAlarm(relativeOffset: -300)  // 5 minutes before
+
+let reminder = try await JMEventKit.shared.createReminder(
+    title: "Important meeting",
+    dueDate: Date().addingTimeInterval(7200),
+    alarms: [alarm1, alarm2]
+)
+```
+
+### Advanced Filtering
+
+```swift
+// Fetch high-priority reminders due this week
+let weekFromNow = Date().addingTimeInterval(7 * 24 * 60 * 60)
+let highPriorityReminders = try await JMEventKit.shared.fetchIncompleteReminders(
+    priority: 1,
+    from: Date(),
+    to: weekFromNow
+)
+```
+
+### Search Reminders
+
+```swift
+// Search in title and notes
+let results = try await JMEventKit.shared.searchReminders(
+    query: "grocery",
+    includeCompleted: false
+)
+```
+
+### Create Calendar Event
+
+```swift
+let startDate = Date().addingTimeInterval(3600)
+let endDate = startDate.addingTimeInterval(3600) // 1 hour duration
+
+let event = try await JMEventKit.shared.createEvent(
+    title: "Team Meeting",
+    startDate: startDate,
+    endDate: endDate,
+    location: "Conference Room A",
+    notes: "Discuss Q4 goals"
+)
+```
+
+### Create All-Day Event
+
+```swift
+let event = try await JMEventKit.shared.createAllDayEvent(
+    title: "Company Holiday",
+    date: Date().addingTimeInterval(7 * 24 * 60 * 60)
+)
+```
+
+### Create Recurring Event
+
+```swift
+let event = try await JMEventKit.shared.createRecurringEvent(
+    title: "Weekly Team Standup",
+    startDate: Date(),
+    endDate: Date().addingTimeInterval(1800), // 30 minutes
+    frequency: .weekly,
+    interval: 1,
+    recurrenceEnd: Date().addingTimeInterval(90 * 24 * 60 * 60) // 90 days
+)
+```
+
+### Fetch Events
+
+```swift
+let startDate = Date()
+let endDate = Date().addingTimeInterval(7 * 24 * 60 * 60) // Next 7 days
+
+let events = try await JMEventKit.shared.fetchEvents(
+    from: startDate,
+    to: endDate
+)
+```
+
+### Update Event
+
+```swift
+event.title = "Updated Meeting Title"
+event.location = "Conference Room B"
+try await JMEventKit.shared.updateEvent(event)
+```
+
+### Delete Event
+
+```swift
+try await JMEventKit.shared.deleteEvent(event)
+```
+
 ## 🧪 Testing
 
 JMEventKit is designed with testability in mind. Use the `EventStoreProtocol` to inject mock implementations:
@@ -252,6 +362,10 @@ Available error types:
 - `reminderCreationFailed` - Failed to create reminder
 - `reminderDeletionFailed` - Failed to delete reminder
 - `reminderUpdateFailed` - Failed to update reminder
+- `eventNotFound` - Event doesn't exist
+- `eventCreationFailed` - Failed to create event
+- `eventDeletionFailed` - Failed to delete event
+- `eventUpdateFailed` - Failed to update event
 - `saveFailed(Error)` - Failed to save to event store
 - `fetchFailed(Error)` - Failed to fetch reminders
 - `invalidConfiguration(String)` - Invalid configuration
@@ -268,24 +382,24 @@ Available error types:
 - ✅ Unit tests
 - ✅ Documentation
 
-### Phase 2: Advanced Reminders (v0.2.0)
-- [ ] Recurring reminders
-- [ ] Reminder alarms
-- [ ] Priority and color support
-- [ ] Advanced filtering
-- [ ] Search functionality
+### Phase 2: Advanced Reminders (v0.2.0) - ✅ Complete
+- ✅ Recurring reminders
+- ✅ Reminder alarms
+- ✅ Priority support (color not supported by EventKit API for individual reminders)
+- ✅ Advanced filtering
+- ✅ Search functionality
 
-### Phase 3: Calendar Events (v0.3.0)
-- [ ] Event creation and management
-- [ ] All-day events
-- [ ] Recurring events
-- [ ] Event attendees
+### Phase 3: Calendar Events (v0.3.0) - ✅ Complete
+- ✅ Event creation and management
+- ✅ All-day events
+- ✅ Recurring events
+- ✅ Event attendees (read-only, write requires UI)
 
-### Phase 4: Advanced Features (v0.4.0+)
+### Phase 4: Advanced Features (v0.4.0+) - Planned
 - [ ] Location-based reminders
-- [ ] Natural language date parsing
 - [ ] Batch operations
-- [ ] iCloud sync handling
+- [ ] iCloud sync change notifications
+- [ ] Advanced recurrence rules (specific days of week, etc.)
 
 ## 🤝 Contributing
 

@@ -206,6 +206,116 @@ if let calendar = JMEventKit.shared.defaultCalendar() {
 }
 ```
 
+### 반복 미리 알림 생성
+
+```swift
+let reminder = try await JMEventKit.shared.createRecurringReminder(
+    title: "비타민 복용",
+    startDate: Date(),
+    frequency: .daily,
+    interval: 1,
+    endDate: Date().addingTimeInterval(30 * 24 * 60 * 60) // 30일
+)
+```
+
+### 알람이 있는 미리 알림 생성
+
+```swift
+let alarm1 = EKAlarm(relativeOffset: -3600) // 1시간 전
+let alarm2 = EKAlarm(relativeOffset: -300)  // 5분 전
+
+let reminder = try await JMEventKit.shared.createReminder(
+    title: "중요한 회의",
+    dueDate: Date().addingTimeInterval(7200),
+    alarms: [alarm1, alarm2]
+)
+```
+
+### 고급 필터링
+
+```swift
+// 이번 주 마감인 높은 우선순위 미리 알림 가져오기
+let weekFromNow = Date().addingTimeInterval(7 * 24 * 60 * 60)
+let highPriorityReminders = try await JMEventKit.shared.fetchIncompleteReminders(
+    priority: 1,
+    from: Date(),
+    to: weekFromNow
+)
+```
+
+### 미리 알림 검색
+
+```swift
+// 제목과 메모에서 검색
+let results = try await JMEventKit.shared.searchReminders(
+    query: "장보기",
+    includeCompleted: false
+)
+```
+
+### 캘린더 이벤트 생성
+
+```swift
+let startDate = Date().addingTimeInterval(3600)
+let endDate = startDate.addingTimeInterval(3600) // 1시간 지속
+
+let event = try await JMEventKit.shared.createEvent(
+    title: "팀 회의",
+    startDate: startDate,
+    endDate: endDate,
+    location: "회의실 A",
+    notes: "4분기 목표 논의"
+)
+```
+
+### 종일 이벤트 생성
+
+```swift
+let event = try await JMEventKit.shared.createAllDayEvent(
+    title: "회사 휴일",
+    date: Date().addingTimeInterval(7 * 24 * 60 * 60)
+)
+```
+
+### 반복 이벤트 생성
+
+```swift
+let event = try await JMEventKit.shared.createRecurringEvent(
+    title: "주간 팀 스탠드업",
+    startDate: Date(),
+    endDate: Date().addingTimeInterval(1800), // 30분
+    frequency: .weekly,
+    interval: 1,
+    recurrenceEnd: Date().addingTimeInterval(90 * 24 * 60 * 60) // 90일
+)
+```
+
+### 이벤트 가져오기
+
+```swift
+let startDate = Date()
+let endDate = Date().addingTimeInterval(7 * 24 * 60 * 60) // 다음 7일
+
+let events = try await JMEventKit.shared.fetchEvents(
+    from: startDate,
+    to: endDate
+)
+```
+
+### 이벤트 업데이트
+
+```swift
+event.title = "업데이트된 회의 제목"
+event.location = "회의실 B"
+try await JMEventKit.shared.updateEvent(event)
+```
+
+### 이벤트 삭제
+
+```swift
+try await JMEventKit.shared.deleteEvent(event)
+```
+
 ## 🧪 테스트
 
 JMEventKit은 테스트를 염두에 두고 설계되었습니다. `EventStoreProtocol`을 사용하여 Mock 구현을 주입하세요:
@@ -252,6 +362,10 @@ do {
 - `reminderCreationFailed` - 미리 알림 생성 실패
 - `reminderDeletionFailed` - 미리 알림 삭제 실패
 - `reminderUpdateFailed` - 미리 알림 업데이트 실패
+- `eventNotFound` - 이벤트가 존재하지 않음
+- `eventCreationFailed` - 이벤트 생성 실패
+- `eventDeletionFailed` - 이벤트 삭제 실패
+- `eventUpdateFailed` - 이벤트 업데이트 실패
 - `saveFailed(Error)` - 이벤트 저장소에 저장 실패
 - `fetchFailed(Error)` - 미리 알림 가져오기 실패
 - `invalidConfiguration(String)` - 잘못된 구성
@@ -268,24 +382,24 @@ do {
 - ✅ 단위 테스트
 - ✅ 문서화
 
-### Phase 2: 고급 미리 알림 (v0.2.0)
-- [ ] 반복 미리 알림
-- [ ] 미리 알림 알람
-- [ ] 우선순위 및 색상 지원
-- [ ] 고급 필터링
-- [ ] 검색 기능
+### Phase 2: 고급 미리 알림 (v0.2.0) - ✅ 완료
+- ✅ 반복 미리 알림
+- ✅ 미리 알림 알람
+- ✅ 우선순위 지원 (개별 미리 알림 색상은 EventKit API에서 미지원)
+- ✅ 고급 필터링
+- ✅ 검색 기능
 
-### Phase 3: 캘린더 이벤트 (v0.3.0)
-- [ ] 이벤트 생성 및 관리
-- [ ] 종일 이벤트
-- [ ] 반복 이벤트
-- [ ] 이벤트 참석자
+### Phase 3: 캘린더 이벤트 (v0.3.0) - ✅ 완료
+- ✅ 이벤트 생성 및 관리
+- ✅ 종일 이벤트
+- ✅ 반복 이벤트
+- ✅ 이벤트 참석자 (읽기 전용, 쓰기는 UI 필요)
 
-### Phase 4: 고급 기능 (v0.4.0+)
+### Phase 4: 고급 기능 (v0.4.0+) - 계획 중
 - [ ] 위치 기반 미리 알림
-- [ ] 자연어 날짜 파싱
 - [ ] 일괄 작업
-- [ ] iCloud 동기화 처리
+- [ ] iCloud 동기화 변경 알림
+- [ ] 고급 반복 규칙 (특정 요일 등)
 
 ## 🤝 기여하기
 

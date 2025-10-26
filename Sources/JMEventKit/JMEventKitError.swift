@@ -27,6 +27,18 @@ public enum JMEventKitError: LocalizedError {
     /// Failed to update a reminder
     case reminderUpdateFailed
 
+    /// Event not found with the given identifier
+    case eventNotFound
+
+    /// Failed to create an event
+    case eventCreationFailed
+
+    /// Failed to delete an event
+    case eventDeletionFailed
+
+    /// Failed to update an event
+    case eventUpdateFailed
+
     /// Failed to save changes to the event store
     case saveFailed(any Error)
 
@@ -56,6 +68,14 @@ public enum JMEventKitError: LocalizedError {
             return "Failed to delete reminder. Please try again."
         case .reminderUpdateFailed:
             return "Failed to update reminder. Please try again."
+        case .eventNotFound:
+            return "The requested event could not be found."
+        case .eventCreationFailed:
+            return "Failed to create event. Please try again."
+        case .eventDeletionFailed:
+            return "Failed to delete event. Please try again."
+        case .eventUpdateFailed:
+            return "Failed to update event. Please try again."
         case .saveFailed(let error):
             return "Failed to save changes: \(error.localizedDescription)"
         case .fetchFailed(let error):
@@ -77,6 +97,8 @@ public enum JMEventKitError: LocalizedError {
             return "Device restrictions prevent access to reminders."
         case .reminderNotFound:
             return "Reminder identifier does not exist in the event store."
+        case .eventNotFound:
+            return "Event identifier does not exist in the event store."
         case .saveFailed(let error), .fetchFailed(let error), .unknown(let error):
             return error.localizedDescription
         case .invalidConfiguration(let message):
@@ -94,8 +116,10 @@ public enum JMEventKitError: LocalizedError {
             return "Check device restrictions in Settings > Screen Time."
         case .reminderNotFound:
             return "Verify the reminder still exists and try refreshing."
+        case .eventNotFound:
+            return "Verify the event still exists and try refreshing."
         case .calendarNotFound:
-            return "Create a default reminders list in the Reminders app."
+            return "Create a default calendar in the Calendar or Reminders app."
         default:
             return "Please try again or contact support if the problem persists."
         }

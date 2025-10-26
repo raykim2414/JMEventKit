@@ -36,6 +36,29 @@ public protocol EventStoreProtocol {
 
     /// Create a new reminder object
     func makeReminder() -> EKReminder
+
+    // MARK: - Event Methods
+
+    /// Create a new event object
+    func makeEvent() -> EKEvent
+
+    /// Save an event to the event store
+    func save(_ event: EKEvent, span: EKSpan, commit: Bool) throws
+
+    /// Remove an event from the event store
+    func remove(_ event: EKEvent, span: EKSpan, commit: Bool) throws
+
+    /// Get event by identifier
+    func event(withIdentifier identifier: String) -> EKEvent?
+
+    /// Get events matching a predicate
+    func events(matching predicate: NSPredicate) -> [EKEvent]
+
+    /// Create a predicate for events within a date range
+    func predicateForEvents(withStart startDate: Date, end endDate: Date, calendars: [EKCalendar]?) -> NSPredicate
+
+    /// Get the default calendar for new events
+    func defaultCalendarForNewEvents() -> EKCalendar?
 }
 
 /// Extension to make EKEventStore conform to EventStoreProtocol
@@ -82,5 +105,15 @@ extension EKEventStore: EventStoreProtocol {
 
     public func makeReminder() -> EKReminder {
         return EKReminder(eventStore: self)
+    }
+
+    public func makeEvent() -> EKEvent {
+        return EKEvent(eventStore: self)
+    }
+
+    // Note: EKEventStore has a property named defaultCalendarForNewEvents
+    // We can't directly return it due to name collision, so we explicitly cast
+    nonisolated public func defaultCalendarForNewEvents() -> EKCalendar? {
+        return (self as EKEventStore).defaultCalendarForNewEvents
     }
 }
